@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#ffffff" />
+        <title>Coastwise — Spatial Explorer</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon.ico" />
+      <script type="module" crossorigin src="/assets/index-DGX2xLzQ.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-B3KdDD8D.css">
+    </head>
+    <body>
+        <div class="app">
+            <header class="topbar">
+                <a class="brand" href="/" aria-label="Coastwise home">
+                    <img src="/favicon.svg" width="28" height="28" alt="" />
+                    <span>Coastwise</span>
+                </a>
+                <span class="brand-tag">A coastal hotel explorer</span>
+                <div class="run-summary">
+                    <div><span>Hotels</span><strong id="total">—</strong></div>
+                    <div><span>In view</span><strong id="visible">—</strong></div>
+                    <div><span>Query</span><strong id="query-time">—</strong></div>
+                </div>
+                <button
+                    id="server-toggle"
+                    class="button server-toggle"
+                    aria-expanded="false"
+                    aria-controls="server-panel"
+                    disabled
+                >
+                    Server
+                </button>
+                <a
+                    class="topbar-link"
+                    href="https://github.com/bavix/spatial"
+                    target="_blank"
+                    rel="noreferrer"
+                    >bavix/spatial ↗</a
+                >
+            </header>
+            <main class="workspace">
+                <aside class="sidebar" aria-label="Map controls and results">
+                    <div class="sidebar-controls">
+                        <h1>Coastal hotels</h1>
+                        <p class="sidebar-description">
+                            Discover a stay. See how close the sea really is.
+                        </p>
+                        <label class="label" for="sea">Sea region</label>
+                        <div class="sea-control">
+                            <select id="sea" disabled>
+                                <option value="">All seas</option>
+                                <option value="black" selected>Black Sea</option>
+                                <option value="red">Red Sea</option>
+                                <option value="marmara">Sea of Marmara</option>
+                            </select>
+                            <button
+                                id="reset"
+                                class="button"
+                                disabled
+                                title="Fit all seas"
+                                aria-label="Fit all seas"
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 20 20"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                        <button
+                            id="mobile-results"
+                            class="button mobile-results"
+                            aria-expanded="false"
+                            aria-controls="hotels"
+                            disabled
+                        >
+                            Show hotels in view
+                        </button>
+                        <details class="map-options">
+                            <summary>Map layers</summary>
+                            <div class="checks">
+                                <label
+                                    ><input id="connections" type="checkbox" /> All
+                                    connections</label
+                                >
+                                <label
+                                    ><input id="polygons" type="checkbox" checked /> Sea
+                                    shapes</label
+                                >
+                                <label
+                                    ><input id="base-map" type="checkbox" checked />
+                                    OpenStreetMap</label
+                                >
+                            </div>
+                        </details>
+                    </div>
+                    <section class="hotel-panel">
+                        <div class="list-heading">
+                            <h2>Hotels in view</h2>
+                            <span id="result-count">—</span>
+                        </div>
+                        <div class="search-box">
+                            <input
+                                id="search"
+                                type="search"
+                                placeholder="Search visible hotels"
+                                aria-label="Search visible hotels"
+                                maxlength="120"
+                                disabled
+                            />
+                        </div>
+                        <p id="list-hint" class="list-hint">Closest to shore first</p>
+                        <label class="real-filter"
+                            ><input id="real-only" type="checkbox" /> Real hotels only</label
+                        >
+                        <div id="hotels" class="hotel-list" aria-label="Hotels and clusters">
+                            <div class="empty">Loading hotels…</div>
+                        </div>
+                    </section>
+                    <div class="sidebar-footer">
+                        Real hotel records + labelled sample points.<br />Straight-line distances,
+                        not beach routes.
+                    </div>
+                </aside>
+                <section class="stage" aria-label="Interactive hotel map">
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-caption">
+                            <span><i class="swatch"></i> Hotels</span
+                            ><span><i class="swatch shore-swatch"></i> OSM shoreline</span
+                            ><span id="zoom">ZOOM —</span>
+                        </div>
+                        <div id="loading" class="loading" role="status">
+                            <img src="/favicon.svg" width="48" height="48" alt="" />
+                            <div class="loading-title">Preparing your map</div>
+                            <p id="loading-message">Loading hotels and sea regions…</p>
+                            <progress aria-label="Loading"></progress>
+                        </div>
+                        <div id="status" class="status" role="status" hidden></div>
+                        <aside
+                            id="server-panel"
+                            class="server-panel"
+                            aria-label="Server information"
+                            hidden
+                        >
+                            <div class="inspector-heading">
+                                <h2>Server information</h2>
+                                <span id="server-status">Connected</span>
+                            </div>
+                            <dl class="server-metrics">
+                                <div>
+                                    <dt>Runtime</dt>
+                                    <dd id="server-runtime">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Platform</dt>
+                                    <dd id="server-platform">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Uptime</dt>
+                                    <dd id="server-uptime">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Startup</dt>
+                                    <dd id="server-startup">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Go heap</dt>
+                                    <dd id="server-heap">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Spatial indexes</dt>
+                                    <dd id="server-index">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Logical CPUs</dt>
+                                    <dd id="server-cpus">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Goroutines</dt>
+                                    <dd id="server-goroutines">—</dd>
+                                </div>
+                                <div>
+                                    <dt>Coast segments</dt>
+                                    <dd id="server-segments">—</dd>
+                                </div>
+                            </dl>
+                            <p class="server-note">
+                                Live snapshot · refreshes every 5 seconds.<br />Heap measures Go
+                                allocations, not total process memory.
+                            </p>
+                        </aside>
+                        <aside class="inspector" aria-label="Hotel details">
+                            <div class="inspector-heading">
+                                <h2>Hotel details</h2>
+                                <button
+                                    id="close-details"
+                                    class="icon-button"
+                                    aria-label="Clear selected hotel"
+                                    hidden
+                                >
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 20 20"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="m5 5 10 10M15 5 5 15"
+                                            stroke="currentColor"
+                                            stroke-width="1.5"
+                                            stroke-linecap="round"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="details"></div>
+                        </aside>
+                    </div>
+                    <div class="stage-footer">
+                        <span id="engine-status" aria-live="polite">Connecting to backend</span
+                        ><span id="index-size">WGS84 · OSM</span>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </body>
+</html>
